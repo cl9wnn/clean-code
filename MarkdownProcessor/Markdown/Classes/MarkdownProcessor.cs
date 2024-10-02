@@ -1,12 +1,21 @@
-﻿namespace MarkdownLibrary;
+﻿using System.Text;
+
+namespace MarkdownLibrary;
 
 public class MarkdownProcessor : IMarkdownProcessor
 {
-    private readonly List<IFragmentParser>? _parsers;
+    private readonly TokenParser _tokenParser;
+    private readonly IRenderer _renderer;
 
+    public MarkdownProcessor()
+    {
+        _tokenParser = new TokenParser();
+        _renderer = new HtmlRenderer();
+    }
     public string ConvertToHtml(string markdownText)
     {
-        throw new NotImplementedException();
+        var result = _tokenParser.Process(markdownText);
+        return _renderer.Render(markdownText, result);
     }
 }
     

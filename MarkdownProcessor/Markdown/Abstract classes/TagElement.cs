@@ -1,8 +1,7 @@
 ﻿namespace MarkdownLibrary;
-
 public abstract class TagElement
 {
     public abstract string MdTag { get; }
-    public abstract string HtmlTag { get; }
-
+    public abstract string OpenHtmlTag { get; }
+    public abstract string CloseHtmlTag { get; }
 }
