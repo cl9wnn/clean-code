@@ -47,10 +47,32 @@ public class MdProcessorTests
     }
 
     [Fact]
-    public void EscapedUnderscore_ShouldNotConvert()
+    public void EscapedHeader_ShouldNotConvert()
     {
-        string input = "\\_Вот это\\_ не должно выделиться тегом <em>.";
+        string input = @"\#Вот это заголовок";
+        string expected = @"#Вот это заголовок";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void EscapedItalicText_ShouldNotConvert()
+    {
+        string input = @"\_Вот это\_ не должно выделиться тегом <em>.";
         string expected = "_Вот это_ не должно выделиться тегом <em>.";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void EscapedBoldText_ShouldNotConvert()
+    {
+        string input = @"\_\_Вот это\_\_ не должно выделиться тегом <strong>.";
+        string expected = "__Вот это__ не должно выделиться тегом <strong>.";
 
         string result = _processor.ConvertToHtml(input);
 
@@ -60,8 +82,8 @@ public class MdProcessorTests
     [Fact]
     public void Escaping_Correctly()
     {
-        string input = "Символ экранирования исчезает из результата, только если экранирует что-то. Здесь сим\\волы экранирования\\ \\должны остаться.\\";
-        string expected = "Символ экранирования исчезает из результата, только если экранирует что-то. Здесь сим\\волы экранирования\\ \\должны остаться.\\";
+        string input = @"Символ экранирования исчезает из результата, только если экранирует что-то. Здесь сим\волы экранирования\ \должны остаться.\";
+        string expected = @"Символ экранирования исчезает из результата, только если экранирует что-то. Здесь сим\волы экранирования\ \должны остаться.\";
 
         string result = _processor.ConvertToHtml(input);
 
@@ -71,8 +93,8 @@ public class MdProcessorTests
     [Fact]
     public void Escaping_ShouldWorkCorrectly()
     {
-        string input = "Символ экранирования тоже можно экранировать: \\\\_вот это будет выделено тегом_";
-        string expected = "Символ экранирования тоже можно экранировать: \\<em>вот это будет выделено тегом</em>";
+        string input = @"Символ экранирования тоже можно экранировать: \\_вот это будет выделено тегом_";
+        string expected = @"Символ экранирования тоже можно экранировать: \<em>вот это будет выделено тегом</em>";
 
         string result = _processor.ConvertToHtml(input);
 

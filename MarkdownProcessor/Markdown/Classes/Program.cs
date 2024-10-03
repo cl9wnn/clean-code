@@ -2,13 +2,22 @@
 
 public class Program
 {
-    static void Main(string[] args)
+    
+
+    public static void Main(string[] args)
     {
-        TokenParser tkn = new TokenParser();
+        Dictionary<string, TagElement> TagsDictionary = new()
+        {
+            { "_", new ItalicTag() },
+            { "__", new BoldTag() },
+            { "#", new HeaderTag() }
+        };
 
-        HtmlRenderer rndr = new HtmlRenderer();
+        TokenParser tkn = new TokenParser(TagsDictionary);
 
-        string input = "# Заголовок __с _разными_ символами__";
+        HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
+
+        string input = @"# Заголовок __с \\_разными\_ символами__";
         var result1 = tkn.Process(input);
         Console.WriteLine(rndr.Render(input, result1));
     }
