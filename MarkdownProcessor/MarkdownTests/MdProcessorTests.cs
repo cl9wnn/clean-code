@@ -14,8 +14,8 @@ public class MdProcessorTests
     [Fact]
     public void SingleCharp_ShouldConvertToHeader()
     {
-        var input = "# Header text";
-        var expected = "<h1> Header text</h1>";
+        var input = "#Header text";
+        var expected = "<h1>Header text</h1>";
 
         string result = _processor.ConvertToHtml(input);
 

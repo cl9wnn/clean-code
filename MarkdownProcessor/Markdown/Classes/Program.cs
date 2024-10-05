@@ -2,8 +2,6 @@
 
 public class Program
 {
-    
-
     public static void Main(string[] args)
     {
         Dictionary<string, TagElement> TagsDictionary = new()
@@ -17,9 +15,9 @@ public class Program
 
         HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
 
-        string input = @"# Заголовок __с \\_разными\_ символами__";
+        string input = @"# Заголовок __с _разными_ символами__";
         var result1 = tkn.Process(input);
-        Console.WriteLine(rndr.Render(input, result1));
+        Console.WriteLine(rndr.Render(result1));
     }
 }
 

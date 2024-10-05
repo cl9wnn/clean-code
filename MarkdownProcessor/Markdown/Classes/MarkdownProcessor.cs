@@ -24,7 +24,7 @@ public class MarkdownProcessor : IMarkdownProcessor
     public string ConvertToHtml(string markdownText)
     {
         var result = _tokenParser.Process(markdownText);
-        return _renderer.Render(markdownText, result);
+        return _renderer.Render(result);
     }
 }
     
