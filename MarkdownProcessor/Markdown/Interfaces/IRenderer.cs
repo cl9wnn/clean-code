@@ -2,6 +2,6 @@
 {
     public interface IRenderer
     {
-        public string Render(IEnumerable<Token> tokens);
+        public string Render(IEnumerable<Line> tokens);
     }
 }

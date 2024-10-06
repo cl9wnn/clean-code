@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 namespace MarkdownLibrary;
 
     public class HtmlRenderer: IRenderer
@@ -10,32 +11,59 @@ namespace MarkdownLibrary;
             _tagDictionary = tagDictionary;
         }
 
-        public string Render(IEnumerable<Token> tokens)
+    public string Render(IEnumerable<Line> processedLines)
+    {
+        var renderedLines = new List<string>();
+
+        foreach (var line in processedLines)
         {
-            var renderedString = new StringBuilder();
-
-            foreach (var token in tokens)
-            {
-                var word = token.Word;
-                var tagDataList = token.Tags;
-
-                if (tagDataList.Count > 0)
-                {
-                    var renderedWord = ReplaceTags(word, tagDataList);
-                    renderedString.Append(renderedWord);
-                }
-                else
-                {
-                    renderedString.Append(word);
-                }
-
-                renderedString.Append(" ");
-            }
-
-            return RemoveEscapedCharacters(renderedString.ToString().TrimEnd());
+            var renderedLine = RenderLine(line);
+            renderedLines.Add(renderedLine);
         }
 
-        private string ReplaceTags(string word, List<TagData> tagDataList)
+        return RemoveEscapedCharacters(string.Join("\n", renderedLines));
+    }
+
+    private string RenderLine(Line line)
+    {
+        var renderedString = new StringBuilder();
+
+        foreach (var token in line.Tokens)
+        {
+            var word = token.Word;
+            var tagDataList = token.Tags;
+
+            if (tagDataList.Count > 0)
+            {
+                var renderedWord = ReplaceTags(word, tagDataList);
+                renderedString.Append(renderedWord);
+            }
+            else
+            {
+                renderedString.Append(word);
+            }
+
+            renderedString.Append(' ');
+        }
+
+        string content = renderedString.ToString().TrimEnd();
+
+        if (line.IsHeader)
+        {
+            return RenderHeaderLine(content);
+        }
+
+        return content;
+    }
+
+    //TODO: Заменить "<h1>" через тег
+    private string RenderHeaderLine(string line)
+    {
+        return $"<h1>{line}</h1>";
+    }
+
+
+    private string ReplaceTags(string word, List<TagData> tagDataList)
         {
             var result = new StringBuilder(word);
 
@@ -61,7 +89,7 @@ namespace MarkdownLibrary;
                     {
                         var escapedSymbol = text[i + 1].ToString();
 
-                        if (_tagDictionary.ContainsKey(escapedSymbol) || escapedSymbol == "\\")
+                        if (_tagDictionary.ContainsKey(escapedSymbol) || escapedSymbol == "#" || escapedSymbol == "\\")
                         {
                             continue;
                         }

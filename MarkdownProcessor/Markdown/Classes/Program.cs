@@ -8,16 +8,18 @@ public class Program
         {
             { "_", new ItalicTag() },
             { "__", new BoldTag() },
-            { "#", new HeaderTag() }
         };
 
-        TokenParser tkn = new TokenParser(TagsDictionary);
+        TokenParser tokenParser = new TokenParser(TagsDictionary);
+        LineParser lineParser = new LineParser(tokenParser);
 
         HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
 
-        string input = @"# Заголовок __с _разными_ символами__";
-        var result1 = tkn.Process(input);
-        Console.WriteLine(rndr.Render(result1));
+        string input = "# Заголовок __с _разными_ символами__\nКакой-то текст";
+        string input2 = "\\# Вот это заголовок";
+
+        var lines = lineParser.Parse(input2);
+        Console.WriteLine(rndr.Render(lines));
     }
 }
 

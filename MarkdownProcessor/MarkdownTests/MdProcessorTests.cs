@@ -14,7 +14,7 @@ public class MdProcessorTests
     [Fact]
     public void SingleCharp_ShouldConvertToHeader()
     {
-        var input = "#Header text";
+        var input = "# Header text";
         var expected = "<h1>Header text</h1>";
 
         string result = _processor.ConvertToHtml(input);
@@ -23,6 +23,28 @@ public class MdProcessorTests
     }
 
     [Fact]
+    public void SingleCharpWithoutSpace_ShouldntConvertToHeader()
+    {
+        var input = "#Header text";
+        var expected = "#Header text";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void Lines_ShouldDividedCorrectrly()
+    {
+        var input = "# Header\nDefault Text\n_Another Text_.";
+        var expected = "<h1>Header</h1>\nDefault Text\n<em>Another Text</em>."; ;
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+   [Fact]
     public void DoubleUnderscore_ShouldConvertToStrong()
     {
         // Arrange
@@ -49,8 +71,8 @@ public class MdProcessorTests
     [Fact]
     public void EscapedHeader_ShouldNotConvert()
     {
-        string input = @"\#Вот это заголовок";
-        string expected = @"#Вот это заголовок";
+        string input = "\\# Вот это заголовок";
+        string expected = "# Вот это заголовок";
 
         string result = _processor.ConvertToHtml(input);
 
@@ -146,10 +168,43 @@ public class MdProcessorTests
     }
 
     [Fact]
+    public void UnderscoresBetweenWords_ShouldntConvert()
+    {
+        string input = "В то же время выделение в ра_зных сл_овах не работает";
+        string expected = "В то же время выделение в ра_зных сл_овах не работает";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
     public void UnmatchedSymbols_ShouldNotConvert()
     {
         string input = "__непарные_ символы не считаются выделением.";
         string expected = "__непарные_ символы не считаются выделением.";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact] 
+    public void UnclosedTag_ShouldntConvert()
+    {
+        string input = "Заголовок с _разными_ символами_";
+        string expected = "Заголовок с <em>разными</em> символами_";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void UnclosedTagBetweenTag_ShouldntConvert()
+    {
+        string input = "Заголовок с _разными__ символами_";
+        string expected = "Заголовок с <em>разными__ символами</em>";
 
         string result = _processor.ConvertToHtml(input);
 
@@ -181,8 +236,8 @@ public class MdProcessorTests
     [Fact]
     public void CrossingUnderscores_ShouldNotConvert()
     {
-        string input = "__пересечения _двойных__ и одинарных_ подчерков__.";
-        string expected = "__пересечения _двойных__ и одинарных_ подчерков__.";
+        string input = "__пересечения _двойных__ и одинарных_ подчерков.";
+        string expected = "__пересечения _двойных__ и одинарных_ подчерков.";
 
         string result = _processor.ConvertToHtml(input);
 
@@ -203,7 +258,7 @@ public class MdProcessorTests
     [Fact]
     public void HeadingConversion_ShouldWork()
     {
-        string input = "#Заголовок __с _разными_ символами__";
+        string input = "# Заголовок __с _разными_ символами__";
         string expected = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>";
 
         string result = _processor.ConvertToHtml(input);
