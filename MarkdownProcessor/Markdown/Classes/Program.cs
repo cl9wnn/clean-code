@@ -15,7 +15,7 @@ public class Program
 
         HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
 
-        string input = "_одинарное __двойное__ не_ работает.";
+        string input = "_п __д_ и__";
 
         var lines = lineParser.Parse(input);
         Console.WriteLine(rndr.Render(lines));

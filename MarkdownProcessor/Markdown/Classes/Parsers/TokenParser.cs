@@ -51,7 +51,7 @@ public class TokenParser : IParser<Token>
                 if (tagStack.Contains(currentTag))
                 {
 
-                    if (HasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNesred(currentTag, tagStack))
+                    if (HasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateClosingTag(currentTag, i));
                         tagStack.Pop();
@@ -59,7 +59,7 @@ public class TokenParser : IParser<Token>
                 }
                 else
                 {
-                    if (HasSpaceAfterOpenTag(word, currentTag, i) && !IsBoldTagNesred(currentTag, tagStack))
+                    if (HasSpaceAfterOpenTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateOpeningTag(currentTag, i));
                         tagStack.Push(currentTag);
@@ -93,7 +93,7 @@ public class TokenParser : IParser<Token>
         return symbol;
     }
 
-    private bool IsBoldTagNesred(string currentTag, Stack<string> tagStack)
+    private bool IsBoldTagNested(string currentTag, Stack<string> tagStack)
     {
         return tagStack.Contains("_") && currentTag == "__";
     }

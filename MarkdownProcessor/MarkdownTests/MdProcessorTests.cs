@@ -11,267 +11,195 @@ public class MdProcessorTests
     }
 
 
-    [Fact]
-    public void SingleCharp_ShouldConvertToHeader()
-    {
-        var input = "# Header text";
-        var expected = "<h1>Header text</h1>";
+    //TODO: Make tests for time complexity(O(n))
 
+
+    [Theory]
+    [InlineData("__text__", "<strong>text</strong>")]
+    [InlineData("__bold text__", "<strong>bold text</strong>")]
+    public void DoubleUnderscore_ShouldConvertToStrong(string input, string expected)
+    {
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void SingleCharpWithoutSpace_ShouldntConvertToHeader()
+    [Theory]
+    [InlineData("_text_", "<em>text</em>")]
+    [InlineData("_italic text_", "<em>italic text</em>")]
+    public void SingleUnderscore_ShouldConvertToEmphasis(string input, string expected)
     {
-        var input = "#Header text";
-        var expected = "#Header text";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void Lines_ShouldDividedCorrectrly()
+    [Theory]
+    [InlineData(@"\# Header", "# Header")]
+    [InlineData(@"\_text\_", "_text_")]
+    [InlineData(@"\_\_text\_\_", "__text__")]
+    public void EscapedTags_ShouldNotConvert(string input, string expected)
     {
-        var input = "# Header\nDefault Text\n_Another Text._";
-        var expected = "<h1>Header</h1>\nDefault Text\n<em>Another Text.</em>"; ;
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-   [Fact]
-    public void DoubleUnderscore_ShouldConvertToStrong()
+    [Theory]
+    [InlineData(@"te\xt", @"te\xt")]
+    [InlineData(@"te\xt \with escaping\", @"te\xt \with escaping\")]
+    public void Escaping_ShouldWorkOnlyWithTags(string input, string expected)
     {
-        // Arrange
-        var input = "__bold text__";
-        var expected = "<strong>bold text</strong>";
-
-        string result = _processor.ConvertToHtml(input);
-
-        //Assert
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void SingleUnderscore_ShouldConvertToEmphasis()
-    {
-        var input = "_italic text_";
-        var expected = "<em>italic text</em>";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void EscapedHeader_ShouldNotConvert()
+    [Theory]
+    [InlineData(@"\\_text_", @"\<em>text</em>")]
+    [InlineData(@"\\__text__", @"\<strong>text</strong>")]
+    public void EscapingSymbol_ShouldScreenEscapingSymbol(string input, string expected)
     {
-        string input = "\\# Вот это заголовок";
-        string expected = "# Вот это заголовок";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void EscapedItalicText_ShouldNotConvert()
+    [Theory]
+    [InlineData("__emphasis _text_ convert__", "<strong>emphasis <em>text</em> convert</strong>")]
+    public void NestedEmphasisTag_ShouldConvert(string input, string expected)
     {
-        string input = @"\_Вот это\_ не должно выделиться тегом <em>.";
-        string expected = "_Вот это_ не должно выделиться тегом <em>.";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void EscapedBoldText_ShouldNotConvert()
+    [Theory]
+    [InlineData("_bold __text__ doesnt convert_", "<em>bold __text__ doesnt convert</em>")]
+    public void NestedStrongTag_ShouldNotConvert(string input, string expected)
     {
-        string input = @"\_\_Вот это\_\_ не должно выделиться тегом <strong>.";
-        string expected = "__Вот это__ не должно выделиться тегом <strong>.";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void Escaping_Correctly()
-    {
-        string input = @"Символ экранирования исчезает из результата, только если экранирует что-то. Здесь сим\волы экранирования\ \должны остаться.\";
-        string expected = @"Символ экранирования исчезает из результата, только если экранирует что-то. Здесь сим\волы экранирования\ \должны остаться.\";
-
+    [Theory]
+    [InlineData("text_12_3", "text_12_3")]
+    [InlineData("__text123__", "__text123__")]
+    [InlineData("text_123_example", "text_123_example")]
+    public void TagsInsideWordsWithNumbers_ShouldNotConvert(string input, string expected)
+    { 
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void Escaping_ShouldWorkCorrectly()
-    {
-        string input = @"Символ экранирования тоже можно экранировать: \\_вот это будет выделено тегом_";
-        string expected = @"Символ экранирования тоже можно экранировать: \<em>вот это будет выделено тегом</em>";
 
+    [Theory]
+    [InlineData("_sta_rt", "<em>sta</em>rt")]
+    [InlineData("cen__te__r", "cen<strong>te</strong>r")]
+    [InlineData("en_d_", "en<em>d</em>")]
+
+    public void TagsInsideWords_ShouldConvert(string input, string expected)
+    {
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void NestedEmphasisAndStrong_ShouldWorkCorrectly()
+    [Theory]
+    [InlineData("diff_erent wo_rd", "diff_erent wo_rd")]
+    [InlineData("diff__erent wo__rd", "diff__erent wo__rd")]
+    public void TagsInsideWordsInDifferentWords_ShouldNotConvert(string input, string expected)
     {
-        string input = "__двойное выделение _одинарное_ тоже__ работает.";
-        string expected = "<strong>двойное выделение <em>одинарное</em> тоже</strong> работает.";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void SingleUnderscoreInsideDoubleUnderscore_ShouldNotWork()
-    {
-        string input = "_одинарное __двойное__ не_ работает.";
-        string expected = "<em>одинарное __двойное__ не</em> работает.";
+    [Theory]
+    [InlineData("__word_", "__word_")]
+    [InlineData("_word__", "_word__")]
+    [InlineData("__Dont convert_", "__Dont convert_")]
+    [InlineData("_Dont convert__", "_Dont convert__")]
 
+    public void UnmatchedSymbols_ShouldNotConvert(string input, string expected)
+    {
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void UnderscoresInsideWordsWithNumbers_ShouldNotConvert()
-    {
-        string input = "текст c цифрами_12_3 не считаются выделением.";
-        string expected = "текст c цифрами_12_3 не считаются выделением.";
 
+    [Theory]
+    [InlineData("example_ text_", "example_ text_")]
+    [InlineData("example__ long line bold text__", "example__ long line bold text__")]
+
+    public void NoWhitespaceAfterTag_ShouldNotConvert(string input, string expected)
+    {
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void UnderscoresInsideWordsWithNumbers_ShouldNotConvert2()
+    [Theory]
+    [InlineData("_example _text", "_example _text")]
+    [InlineData("_example long line bold _text", "_example long line bold _text")]
+    public void NoWhitespaceBeforeTag_ShouldNotConvert(string input, string expected)
     {
-        string input = "текст_1234_пример";
-        string expected = "текст_1234_пример";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void UnderscoresInsideWords_ShouldConvert()
+    [Theory]
+    [InlineData("__bold _text__ and emphasis_", "__bold _text__ and emphasis_")]
+    [InlineData("_bold __text_ and emphasis__", "_bold __text_ and emphasis__")]
+    public void CrossingUnderscores_ShouldNotConvert(string input, string expected)
     {
-        string input = "и в _нач_але, и в сер_еди_не, и в кон_це._";
-        string expected = "и в <em>нач</em>але, и в сер<em>еди</em>не, и в кон<em>це.</em>";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void UnderscoresBetweenWords_ShouldntConvert()
+    [Theory]
+    [InlineData("____", "____")]
+    [InlineData("__ __", "__ __")]
+    [InlineData("__", "__")]
+    [InlineData("text and __ another _text_", "text and __ another <em>text</em>")]
+    public void EmptyStringBetweenTags_ShouldRemainAsUnderscores(string input, string expected)
     {
-        string input = "В то же время выделение в ра_зных сл_овах не работает";
-        string expected = "В то же время выделение в ра_зных сл_овах не работает";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void UnmatchedSymbols_ShouldNotConvert()
+    [Theory]
+    [InlineData("#Header text", "#Header text")]
+    [InlineData("# Header text", "<h1>Header text</h1>")]
+    public void SingleCharp_ShouldConvertToHeader(string input, string expected)
     {
-        string input = "__непарные_ символы не считаются выделением.";
-        string expected = "__непарные_ символы не считаются выделением.";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact] 
-    public void UnclosedTag_ShouldntConvert()
+    [Theory]
+    [InlineData("# __Заголовок__", "<h1><strong>Заголовок</strong></h1>")]
+    [InlineData("# _Заголовок_", "<h1><em>Заголовок</em></h1>")]
+    [InlineData("# Заголовок __с _разными_ символами__", "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
+    public void HeaderWithAnotherTags_ShouldWork(string input, string expected)
     {
-        string input = "Заголовок с _разными_ символами_";
-        string expected = "Заголовок с <em>разными</em> символами_";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void UnclosedTagBetweenTag_ShouldntConvert()
+    [Theory]
+    [InlineData("Default Text\nAnother Text", "Default Text\nAnother Text")]
+    [InlineData("# Header\nDefault Text\nAnother Text", "<h1>Header</h1>\nDefault Text\nAnother Text")]
+    public void Lines_ShouldDividedCorrectrly(string input, string expected)
     {
-        string input = "Заголовок с _разными__ символами_";
-        string expected = "Заголовок с <em>разными__ символами</em>";
-
-        string result = _processor.ConvertToHtml(input);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void NoWhitespaceAfterUnderscore_ShouldNotConvert()
-    {
-        string input = "За подчерками, начинающими выделение, должен следовать непробельный символ. Иначе эти_ подчерки_ не считаются выделением";
-        string expected = "За подчерками, начинающими выделение, должен следовать непробельный символ. Иначе эти_ подчерки_ не считаются выделением";
-
-        string result = _processor.ConvertToHtml(input);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void NoWhitespaceBeforeUnderscore_ShouldNotConvert()
-    {
-        string input = "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти __подчерки __не считаются окончанием выделения";
-        string expected = "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти __подчерки __не считаются окончанием выделения";
-
-        string result = _processor.ConvertToHtml(input);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void CrossingUnderscores_ShouldNotConvert()
-    {
-        string input = "__пересечения _двойных__ и одинарных_ подчерков.";
-        string expected = "__пересечения _двойных__ и одинарных_ подчерков.";
-
-        string result = _processor.ConvertToHtml(input);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void EmptyStringBetweenUnderscores_ShouldRemainAsUnderscores()
-    {
-        string input = "если внутри подчерков пустая строка ____";
-        string expected = "если внутри подчерков пустая строка ____";
-
-        string result = _processor.ConvertToHtml(input);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void HeadingConversion_ShouldWork()
-    {
-        string input = "# Заголовок __с _разными_ символами__";
-        string expected = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>";
-
         string result = _processor.ConvertToHtml(input);
 
         Assert.Equal(expected, result);
