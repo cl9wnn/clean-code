@@ -1,6 +1,6 @@
 ﻿namespace MarkdownLibrary;
 
-public class LineParser: IParser<Line>
+public class LineParser : IParser<Line>
 {
     private readonly TokenParser _tokenParser;
 

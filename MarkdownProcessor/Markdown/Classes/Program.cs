@@ -15,10 +15,9 @@ public class Program
 
         HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
 
-        string input = "# Заголовок __с _разными_ символами__\nКакой-то текст";
-        string input2 = "\\# Вот это заголовок";
+        string input = "_одинарное __двойное__ не_ работает.";
 
-        var lines = lineParser.Parse(input2);
+        var lines = lineParser.Parse(input);
         Console.WriteLine(rndr.Render(lines));
     }
 }

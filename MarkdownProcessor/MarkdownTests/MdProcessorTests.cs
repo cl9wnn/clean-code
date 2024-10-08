@@ -36,8 +36,8 @@ public class MdProcessorTests
     [Fact]
     public void Lines_ShouldDividedCorrectrly()
     {
-        var input = "# Header\nDefault Text\n_Another Text_.";
-        var expected = "<h1>Header</h1>\nDefault Text\n<em>Another Text</em>."; ;
+        var input = "# Header\nDefault Text\n_Another Text._";
+        var expected = "<h1>Header</h1>\nDefault Text\n<em>Another Text.</em>"; ;
 
         string result = _processor.ConvertToHtml(input);
 
@@ -157,6 +157,17 @@ public class MdProcessorTests
     }
 
     [Fact]
+    public void UnderscoresInsideWordsWithNumbers_ShouldNotConvert2()
+    {
+        string input = "текст_1234_пример";
+        string expected = "текст_1234_пример";
+
+        string result = _processor.ConvertToHtml(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
     public void UnderscoresInsideWords_ShouldConvert()
     {
         string input = "и в _нач_але, и в сер_еди_не, и в кон_це._";
@@ -225,8 +236,8 @@ public class MdProcessorTests
     [Fact]
     public void NoWhitespaceBeforeUnderscore_ShouldNotConvert()
     {
-        string input = "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти _подчерки _не считаются окончанием выделения ";
-        string expected = "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти _подчерки _не считаются окончанием выделения ";
+        string input = "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти __подчерки __не считаются окончанием выделения";
+        string expected = "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти __подчерки __не считаются окончанием выделения";
 
         string result = _processor.ConvertToHtml(input);
 
@@ -247,8 +258,8 @@ public class MdProcessorTests
     [Fact]
     public void EmptyStringBetweenUnderscores_ShouldRemainAsUnderscores()
     {
-        string input = "если внутри подчерков пустая строка ____. ";
-        string expected = "если внутри подчерков пустая строка ____. ";
+        string input = "если внутри подчерков пустая строка ____";
+        string expected = "если внутри подчерков пустая строка ____";
 
         string result = _processor.ConvertToHtml(input);
 
