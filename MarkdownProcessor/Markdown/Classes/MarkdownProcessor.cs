@@ -23,6 +23,7 @@ public class MarkdownProcessor : IMarkdownProcessor
         _lineParser = new LineParser(_tokenParser);
         _renderer = new HtmlRenderer(TagsDictionary);
     }
+
     public string ConvertToHtml(string markdownText)
     {
         var lines = _lineParser.Parse(markdownText);

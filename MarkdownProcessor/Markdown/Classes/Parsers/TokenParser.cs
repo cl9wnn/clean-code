@@ -18,12 +18,23 @@ public class TokenParser : IParser<Token>
         foreach (var word in words)
         {
             var tokenTags = ParseWordTags(word, tagStack);
+
+            if (tokenTags.Count == 1 && IsTagInsideWord(tokenTags.First(), word))
+            {
+                tokenTags.Clear();
+                if (tagStack.Count > 0)
+                {
+                    tagStack.Pop();
+                }
+            }
+
             tokens.Add(new Token(word, tokenTags));
         }
 
         RemoveUnclosedTags(tokens, tagStack);
         return tokens;
     }
+    
 
     private List<TagData> ParseWordTags(string word, Stack<string> tagStack)
     {
@@ -50,7 +61,6 @@ public class TokenParser : IParser<Token>
 
                 if (tagStack.Contains(currentTag))
                 {
-
                     if (HasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateClosingTag(currentTag, i));
@@ -110,7 +120,12 @@ public class TokenParser : IParser<Token>
 
     private bool HasSpaceBeforeClosingTag(string word, string currentTag, int index)
     {
-        return index > 0 && word[index - currentTag.Length] != ' ';
+        return index >= currentTag.Length && word[index - currentTag.Length] != ' ';
+    }
+
+    private bool IsTagInsideWord(TagData tokenTag, string word)
+    {
+        return tokenTag.Index != 0 && tokenTag.Index != word.Length - tokenTag.Tag.MdTag.Length;
     }
 
     private bool IsEscapeSequence(string symbol, ref bool isEscaped)

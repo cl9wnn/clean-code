@@ -1,4 +1,6 @@
-﻿namespace MarkdownLibrary;
+﻿using System.Reflection.Metadata;
+
+namespace MarkdownLibrary;
 
 public class Program
 {
@@ -8,6 +10,7 @@ public class Program
         {
             { "_", new ItalicTag() },
             { "__", new BoldTag() },
+            {"#", new HeaderTag()}
         };
 
         TokenParser tokenParser = new TokenParser(TagsDictionary);
@@ -15,8 +18,7 @@ public class Program
 
         HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
 
-        string input = "_п __д_ и__";
-
+        string input = "+ Пункт A\n+ Пункт B\n  + Подпункт 1\n  + Подпункт 2\n+ Пункт C";
         var lines = lineParser.Parse(input);
         Console.WriteLine(rndr.Render(lines));
     }
