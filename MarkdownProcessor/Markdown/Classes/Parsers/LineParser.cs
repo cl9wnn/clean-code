@@ -18,12 +18,24 @@ public class LineParser : IParser<Line>
 
         foreach (var line in lines)
         {
+            var indentLevel = GetIndentLevel(line);
             var (content, lineType) = GetLineInfo(line); 
             var tokens = _tokenParser.Parse(content);
-            lineTokens.Add(new Line(tokens, lineType)); 
+
+            lineTokens.Add(new Line(tokens, lineType, indentLevel)); 
         }
 
         return lineTokens;
+    }
+
+
+
+    public int GetIndentLevel(string input)
+    {
+        int indentSize = 2; 
+        int spaceCount = input.TakeWhile(char.IsWhiteSpace).Count();
+
+        return  spaceCount / indentSize;
     }
 
     //TODO: заменить символы на свойство из класса тега
@@ -32,7 +44,8 @@ public class LineParser : IParser<Line>
         if (IsHeader(line))
         {
             var headerTag = new HeaderTag();
-            return (line.TrimStart('#').Trim(), headerTag);
+            string content = line.TrimStart('#').Trim();
+            return (content, headerTag);
         }
         else if (IsMarkedList(line))
         {

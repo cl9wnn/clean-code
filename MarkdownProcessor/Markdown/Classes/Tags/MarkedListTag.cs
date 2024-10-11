@@ -8,7 +8,7 @@ public class MarkedListTag : TagElement
     public override bool IsDoubleTag => false;
     public string RenderMarkedListLine(string line)
     {
-        return $"    {OpenHtmlTag}{line}{CloseHtmlTag}";
+        return $"{OpenHtmlTag}{line}{CloseHtmlTag}";
     }
 
 }

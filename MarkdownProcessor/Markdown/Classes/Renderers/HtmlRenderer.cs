@@ -11,27 +11,43 @@ public class HtmlRenderer : IRenderer
         _tagDictionary = tagDictionary;
     }
 
+
+    //TODO: возможно сделать наследование от класса Line и упростить логику проверки
     public string Render(IEnumerable<Line> processedLines)
     {
         var renderedLines = new List<string>();
         var isListOpen = false;
+        int currentLevel = 0;
 
         foreach (var line in processedLines)
         {
+            var indentLevel = line.IndentLevel;
+
             if (line.Type is MarkedListTag && !isListOpen)
             {
                 isListOpen = true;
                 renderedLines.Add("<ul>");
             }
 
-            var renderedLine = RenderLine(line);
-            renderedLines.Add(renderedLine);
+            if (indentLevel > currentLevel)
+            {
+                renderedLines.Add(new string(' ',4 + indentLevel * 4) + "<ul>");
+                currentLevel = indentLevel;
+            }
+            else if (indentLevel < currentLevel)
+            {
+                renderedLines.Add(new string(' ',4+ currentLevel * 4) + "</ul>");
+                currentLevel = indentLevel;
+            }
 
             if (line.Type is not MarkedListTag && isListOpen)
             {
                 isListOpen = false;
                 renderedLines.Add("</ul>");
             }
+
+            var renderedLine = RenderLine(line);
+            renderedLines.Add(renderedLine);
         }
 
         if (isListOpen)
@@ -72,7 +88,7 @@ public class HtmlRenderer : IRenderer
         }
         else if (line.Type is MarkedListTag listTag)
         {
-            return listTag.RenderMarkedListLine(content);
+            return new string(' ', 4 + line.IndentLevel * 8) + listTag.RenderMarkedListLine(content);
         }
 
         return content;
@@ -94,6 +110,8 @@ public class HtmlRenderer : IRenderer
         return result.ToString();
     }
 
+
+    //TODO: добавить все символы и сделать нормальную проверку
     private string RemoveEscapedCharacters(string text)
     {
         var result = new StringBuilder();

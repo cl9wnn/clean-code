@@ -245,7 +245,8 @@ public class MdProcessorTests
     }
 
     [Theory]
-    [InlineData("+ Пункт A\n+ Пункт B\n  + Подпункт 1\n  + Подпункт 2\n+ Пункт C", "<ul>\n    <li>Пункт A</li>\n    <li>Пункт B</li>\n    <ul>\n        <li>Подпункт 1</li>\n        <li>Подпункт 2</li>\n    </ul>\n    </li>\n    <li>Пункт C</li>\n</ul>\n ")]
+    [InlineData("+ Пункт A\n+ Пункт B\n  + Подпункт 1\n  + Подпункт 2\n+ Пункт C", "<ul>\n    <li>Пункт A</li>\n    <li>Пункт B</li>\n        <ul>\n            <li>Подпункт 1</li>\n            <li>Подпункт 2</li>\n        </ul>\n    <li>Пункт C</li>\n</ul>")]
+    [InlineData("+ пункт\n* второй пункт\n  * подпункт\n+ пункт\n  * подпункт\n", "<ul>\n    <li>пункт</li>\n    <li>второй пункт</li>\n        <ul>\n            <li>подпункт</li>\n        </ul>\n    <li>пункт</li>\n        <ul>\n            <li>подпункт</li>\n        </ul>\n</ul>\n")]
     public void MarkedList_ShouldSupportNestedLists(string input, string expected)
     {
         string result = _processor.ConvertToHtml(input);
