@@ -10,5 +10,7 @@ public interface IMarkdownProcessor
     /// </summary>
     /// <param name="markdownText">Текст в формате Markdown.</param>
     /// <returns>HTML-код.</returns>
-    string ConvertToHtml(string markdownText);
+    string ConvertToHtmlFromFile(string markdownText);
+    string ConvertToHtmlFromString(string markdownText);
+
 }

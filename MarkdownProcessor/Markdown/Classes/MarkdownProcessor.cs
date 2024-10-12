@@ -5,9 +5,10 @@ namespace MarkdownLibrary;
 
 public class MarkdownProcessor : IMarkdownProcessor
 {
-    private readonly TokenParser _tokenParser;
-    private readonly LineParser _lineParser;
+    private readonly IParser<Token> _tokenParser;
+    private readonly IParser<Line> _lineParser;
     private readonly IRenderer _renderer;
+    private readonly IFileParser _fileParser;
 
     //TODO: Вынести в нужную сущность
 
@@ -21,15 +22,26 @@ public class MarkdownProcessor : IMarkdownProcessor
     {
         _tokenParser = new TokenParser(TagsDictionary);
         _lineParser = new LineParser(_tokenParser);
+        _fileParser  = new MdFileParser();
         _renderer = new HtmlRenderer(TagsDictionary);
     }
 
-    public string ConvertToHtml(string markdownText)
+    public string ConvertToHtmlFromString(string markdownText)
     {
         var lines = _lineParser.Parse(markdownText);
 
         return _renderer.Render(lines);
     }
+
+    public string ConvertToHtmlFromFile(string filePath)
+    {
+        var parsedFile = _fileParser.Parse(filePath);
+        var lines = _lineParser.Parse(parsedFile);
+
+        return _renderer.Render(lines);
+    }
+
+
 }
     
 

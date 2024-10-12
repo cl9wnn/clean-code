@@ -34,7 +34,7 @@ public class TokenParser : IParser<Token>
         RemoveUnclosedTags(tokens, tagStack);
         return tokens;
     }
-    
+
 
     private List<TagData> ParseWordTags(string word, Stack<string> tagStack)
     {
@@ -55,13 +55,19 @@ public class TokenParser : IParser<Token>
                 continue;
             }
 
-            if (IsTag(symbol) && !isEscaped && !IsSurroundedByDigits(word, i))
+
+            if (IsTag(symbol) && !isEscaped)
             {
                 var currentTag = DetermineTag(word, i);
 
+                if (ContainsDigitsInsideTag(word, i, currentTag))
+                {
+                    continue;
+                }
+
                 if (tagStack.Contains(currentTag))
                 {
-                    if (HasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
+                    if (NotHasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateClosingTag(currentTag, i));
                         tagStack.Pop();
@@ -69,7 +75,8 @@ public class TokenParser : IParser<Token>
                 }
                 else
                 {
-                    if (HasSpaceAfterOpenTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
+
+                    if (NotHasSpaceAfterOpenTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateOpeningTag(currentTag, i));
                         tagStack.Push(currentTag);
@@ -89,6 +96,21 @@ public class TokenParser : IParser<Token>
     private bool IsTag(string symbol)
     {
         return _tagDictionary.ContainsKey(symbol);
+    }
+
+    private bool ContainsDigitsInsideTag(string word, int tagPosition, string tag)
+    {
+        int start = word.IndexOf(tag, tagPosition);
+        int end = word.LastIndexOf(tag);
+
+        if (start != -1 && end != -1 && start < end)
+        {
+            var innerContent = word.Substring(start + tag.Length, end - (start + tag.Length));
+
+            return innerContent.All(char.IsDigit);
+        }
+
+        return false;
     }
 
     private string DetermineTag(string word, int index)
@@ -113,12 +135,13 @@ public class TokenParser : IParser<Token>
         return word.All(c => IsTag(c.ToString()));
     }
 
-    private bool HasSpaceAfterOpenTag(string word, string currentTag, int index)
+    //TODO: поменять названия
+    private bool NotHasSpaceAfterOpenTag(string word, string currentTag, int index)
     {
         return index + currentTag.Length < word.Length && word[index + currentTag.Length] != ' ';
     }
 
-    private bool HasSpaceBeforeClosingTag(string word, string currentTag, int index)
+    private bool NotHasSpaceBeforeClosingTag(string word, string currentTag, int index)
     {
         return index >= currentTag.Length && word[index - currentTag.Length] != ' ';
     }
@@ -137,14 +160,6 @@ public class TokenParser : IParser<Token>
         }
 
         return false;
-    }
-
-    private bool IsSurroundedByDigits(string word, int index)
-    {
-        bool isBeforeDigit = index > 0 && char.IsDigit(word[index - 1]);
-        bool isAfterDigit = index + 1 < word.Length && char.IsDigit(word[index + 1]);
-
-        return isBeforeDigit || isAfterDigit;
     }
 
     private void RemoveUnclosedTags(List<Token> tokens, Stack<string> tagStack)
@@ -167,7 +182,7 @@ public class TokenParser : IParser<Token>
             }
         }
     }
-  
+
 
     private TagData CreateOpeningTag(string tag, int index)
     {

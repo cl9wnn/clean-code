@@ -10,13 +10,10 @@ public class Program
             { "__", new BoldTag() },
         };
 
-        TokenParser tokenParser = new TokenParser(TagsDictionary);
-        LineParser lineParser = new LineParser(tokenParser);
-
-        HtmlRenderer rndr = new HtmlRenderer(TagsDictionary);
-
-        string input = "+ пункт\n* второй пункт\n  * подпункт\n+ пункт\n  * подпункт\n";
-        var lines = lineParser.Parse(input);
-        Console.WriteLine(rndr.Render(lines));
+        var tokenParser = new TokenParser(TagsDictionary);
+        var lineParser = new LineParser(tokenParser);
+        var rndr = new HtmlRenderer(TagsDictionary);
+        var fileParser = new MdFileParser();
+        var proc = new MarkdownProcessor();
     }
 }

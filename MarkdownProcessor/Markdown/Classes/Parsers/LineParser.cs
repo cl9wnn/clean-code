@@ -4,38 +4,36 @@ namespace MarkdownLibrary;
 
 public class LineParser : IParser<Line>
 {
-    private readonly TokenParser _tokenParser;
+    private readonly IParser<Token> _tokenParser;
 
-    public LineParser(TokenParser tokenParser)
+    public LineParser(IParser<Token> tokenParser)
     {
         _tokenParser = tokenParser;
     }
 
     public IEnumerable<Line> Parse(string markdownText)
     {
-        var lines = markdownText.Split('\n');
+        var lines = markdownText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
         var lineTokens = new List<Line>();
 
         foreach (var line in lines)
         {
             var indentLevel = GetIndentLevel(line);
-            var (content, lineType) = GetLineInfo(line); 
+            var (content, lineType) = GetLineInfo(line);
             var tokens = _tokenParser.Parse(content);
 
-            lineTokens.Add(new Line(tokens, lineType, indentLevel)); 
+            lineTokens.Add(new Line(tokens, lineType, indentLevel));
         }
 
         return lineTokens;
     }
 
-
-
     public int GetIndentLevel(string input)
     {
-        int indentSize = 2; 
+        int indentSize = 2;
         int spaceCount = input.TakeWhile(char.IsWhiteSpace).Count();
 
-        return  spaceCount / indentSize;
+        return spaceCount / indentSize;
     }
 
     //TODO: заменить символы на свойство из класса тега

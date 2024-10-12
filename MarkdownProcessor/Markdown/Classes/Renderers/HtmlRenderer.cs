@@ -4,7 +4,7 @@ namespace MarkdownLibrary;
 
 public class HtmlRenderer : IRenderer
 {
-    private readonly Dictionary<string,TagElement> _tagDictionary;
+    private readonly Dictionary<string, TagElement> _tagDictionary;
 
     public HtmlRenderer(Dictionary<string, TagElement> tagDictionary)
     {
@@ -31,12 +31,12 @@ public class HtmlRenderer : IRenderer
 
             if (indentLevel > currentLevel)
             {
-                renderedLines.Add(new string(' ',4 + indentLevel * 4) + "<ul>");
+                renderedLines.Add(new string(' ',  indentLevel * 8) + "<ul>");
                 currentLevel = indentLevel;
             }
             else if (indentLevel < currentLevel)
             {
-                renderedLines.Add(new string(' ',4+ currentLevel * 4) + "</ul>");
+                renderedLines.Add(new string(' ',  currentLevel * 8) + "</ul>");
                 currentLevel = indentLevel;
             }
 

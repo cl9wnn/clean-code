@@ -5,7 +5,7 @@ namespace MarkdownLibrary.Tests;
 public class MdProcessorTests
 {
 
-    private readonly MarkdownProcessor _processor;
+    private readonly IMarkdownProcessor _processor;
 
     public MdProcessorTests()
     {
@@ -20,7 +20,7 @@ public class MdProcessorTests
     [InlineData("__bold text__", "<strong>bold text</strong>")]
     public void DoubleUnderscore_ShouldConvertToStrong(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -30,18 +30,19 @@ public class MdProcessorTests
     [InlineData("_italic text_", "<em>italic text</em>")]
     public void SingleUnderscore_ShouldConvertToEmphasis(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
 
     [Theory]
     [InlineData(@"\# Header", "# Header")]
+    [InlineData(@"\* List", "* list")]
     [InlineData(@"\_text\_", "_text_")]
     [InlineData(@"\_\_text\_\_", "__text__")]
     public void EscapedTags_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -51,7 +52,7 @@ public class MdProcessorTests
     [InlineData(@"te\xt \with escaping\", @"te\xt \with escaping\")]
     public void Escaping_ShouldWorkOnlyWithTags(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -61,7 +62,7 @@ public class MdProcessorTests
     [InlineData(@"\\__text__", @"\<strong>text</strong>")]
     public void EscapingSymbol_ShouldScreenEscapingSymbol(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -70,7 +71,7 @@ public class MdProcessorTests
     [InlineData("__emphasis _text_ convert__", "<strong>emphasis <em>text</em> convert</strong>")]
     public void NestedEmphasisTag_ShouldConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -79,18 +80,19 @@ public class MdProcessorTests
     [InlineData("_bold __text__ doesnt convert_", "<em>bold __text__ doesnt convert</em>")]
     public void NestedStrongTag_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
 
     [Theory]
     [InlineData("text_12_3", "text_12_3")]
-    [InlineData("__text123__", "__text123__")]
     [InlineData("text_123_example", "text_123_example")]
+    [InlineData("__text123__", "<strong>text123</strong>")]
+    [InlineData("_Element 1_", "<em>Element 1</em>")]
     public void TagsInsideWordsWithNumbers_ShouldNotConvert(string input, string expected)
     { 
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -104,7 +106,7 @@ public class MdProcessorTests
     [InlineData("_sta_rt_exa_mple_", "<em>sta</em>rt<em>exa</em>mple_")]
     public void TagsInsideWords_ShouldConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -115,7 +117,7 @@ public class MdProcessorTests
     [InlineData("diff_erent word_", "diff_erent word_")]
     public void TagsInsideWordsInDifferentWords_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -128,7 +130,7 @@ public class MdProcessorTests
 
     public void UnmatchedSymbols_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -140,7 +142,7 @@ public class MdProcessorTests
 
     public void NoWhitespaceAfterTag_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -150,7 +152,7 @@ public class MdProcessorTests
     [InlineData("_example long line bold _text", "_example long line bold _text")]
     public void NoWhitespaceBeforeTag_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -162,7 +164,7 @@ public class MdProcessorTests
 
     public void CrossingUnderscores_ShouldNotConvert(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -174,7 +176,7 @@ public class MdProcessorTests
     [InlineData("text and __ another _text_", "text and __ another <em>text</em>")]
     public void EmptyStringBetweenTags_ShouldRemainAsUnderscores(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -184,7 +186,7 @@ public class MdProcessorTests
     [InlineData("# Header text", "<h1>Header text</h1>")]
     public void SingleCharp_ShouldConvertToHeader(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -195,7 +197,7 @@ public class MdProcessorTests
     [InlineData("# Заголовок __с _разными_ символами__", "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
     public void HeaderWithAnotherTags_ShouldWork(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -205,7 +207,7 @@ public class MdProcessorTests
     [InlineData("# Header\nDefault Text\nAnother Text", "<h1>Header</h1>\nDefault Text\nAnother Text")]
     public void Lines_ShouldDividedCorrectrly(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -216,7 +218,7 @@ public class MdProcessorTests
     [InlineData("* Element 1\n* Element 2\n* Element 3", "<ul>\n    <li>Element 1</li>\n    <li>Element 2</li>\n    <li>Element 3</li>\n</ul>")]
     public void MarkedList_ShouldWork(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -228,7 +230,7 @@ public class MdProcessorTests
     [InlineData("* Element 1\n- Element 2\n+ Element 3", "<ul>\n    <li>Element 1</li>\n    <li>Element 2</li>\n    <li>Element 3</li>\n</ul>")]
     public void MarkedList_ShouldSupportAllListSymbols(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
@@ -239,17 +241,19 @@ public class MdProcessorTests
     [InlineData("* __Bold element__\n* __Bold element__", "<ul>\n    <li><strong>Bold element</strong></li>\n    <li><strong>Bold element</strong></li>\n</ul>")]
     public void MarkedList_ShouldConvertAllTags(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
 
     [Theory]
-    [InlineData("+ Пункт A\n+ Пункт B\n  + Подпункт 1\n  + Подпункт 2\n+ Пункт C", "<ul>\n    <li>Пункт A</li>\n    <li>Пункт B</li>\n        <ul>\n            <li>Подпункт 1</li>\n            <li>Подпункт 2</li>\n        </ul>\n    <li>Пункт C</li>\n</ul>")]
-    [InlineData("+ пункт\n* второй пункт\n  * подпункт\n+ пункт\n  * подпункт\n", "<ul>\n    <li>пункт</li>\n    <li>второй пункт</li>\n        <ul>\n            <li>подпункт</li>\n        </ul>\n    <li>пункт</li>\n        <ul>\n            <li>подпункт</li>\n        </ul>\n</ul>\n")]
+    [InlineData("+ Item A\n+ Item B\n  + Sub-item 1\n  + Sub-item 2\n+ Item C", "<ul>\n    <li>Item A</li>\n    <li>Item B</li>\n        <ul>\n            <li>Sub-item 1</li>\n            <li>Sub-item 2</li>\n        </ul>\n    <li>Item C</li>\n</ul>")]
+    [InlineData("+ Item 1\n* Item 2\n  * Sub-item 1\n+ Item 3\n  * Sub-item 2\n", "<ul>\n    <li>Item 1</li>\n    <li>Item 2</li>\n        <ul>\n            <li>Sub-item 1</li>\n        </ul>\n    <li>Item 3</li>\n        <ul>\n            <li>Sub-item 2</li>\n        </ul>\n</ul>\n")]
+    [InlineData("- Пункт 1\r\n  - Подпункт 1.1\r\n    - Подпункт 1.1.1\r\n  - Подпункт 1.2\r\n- Пункт 2", "<ul>\n    <li>Пункт 1</li>\n        <ul>\n            <li>Подпункт 1.1</li>\n                <ul>\n                    <li>Подпункт 1.1.1</li>\n                </ul>\n            <li>Подпункт 1.2</li>\n        </ul>\n    <li>Пункт 2</li>\n</ul>")]
+
     public void MarkedList_ShouldSupportNestedLists(string input, string expected)
     {
-        string result = _processor.ConvertToHtml(input);
+        string result = _processor.ConvertToHtmlFromString(input);
 
         Assert.Equal(expected, result);
     }
