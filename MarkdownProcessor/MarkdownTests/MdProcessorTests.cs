@@ -18,6 +18,8 @@ public class MdProcessorTests
     [Theory]
     [InlineData("__text__", "<strong>text</strong>")]
     [InlineData("__bold text__", "<strong>bold text</strong>")]
+    [InlineData("__bold and default text__", "<strong>bold and default text</strong>")]
+
     public void DoubleUnderscore_ShouldConvertToStrong(string input, string expected)
     {
         string result = _processor.ConvertToHtmlFromString(input);
@@ -28,6 +30,7 @@ public class MdProcessorTests
     [Theory]
     [InlineData("_text_", "<em>text</em>")]
     [InlineData("_italic text_", "<em>italic text</em>")]
+    [InlineData("_italic and default text_", "<em>italic and default text</em>")]
     public void SingleUnderscore_ShouldConvertToEmphasis(string input, string expected)
     {
         string result = _processor.ConvertToHtmlFromString(input);
@@ -37,7 +40,7 @@ public class MdProcessorTests
 
     [Theory]
     [InlineData(@"\# Header", "# Header")]
-    [InlineData(@"\* List", "* list")]
+    [InlineData(@"\* List", "* List")]
     [InlineData(@"\_text\_", "_text_")]
     [InlineData(@"\_\_text\_\_", "__text__")]
     public void EscapedTags_ShouldNotConvert(string input, string expected)
@@ -183,6 +186,8 @@ public class MdProcessorTests
 
     [Theory]
     [InlineData("#Header text", "#Header text")]
+    [InlineData("Header #text", "Header #text")]
+    [InlineData("Header # text", "Header # text")]
     [InlineData("# Header text", "<h1>Header text</h1>")]
     public void SingleCharp_ShouldConvertToHeader(string input, string expected)
     {
@@ -213,7 +218,21 @@ public class MdProcessorTests
     }
 
     [Theory]
+    [InlineData("__Bold text__ and _italic text_", "<strong>Bold text</strong> and <em>italic text</em>")]
+    [InlineData("__Bold text__ and __not tag text_", "<strong>Bold text</strong> and __not tag text_")]
+    [InlineData("__Bold text__ and _italic text_ and\n * Element", "<strong>Bold text</strong> and <em>italic text</em> and\n<ul>\n    <li>Element</li>\n</ul>")]
+
+    public void DifferentTagsInOneParagraph_ShouldWordCorrectly(string input, string expected)
+    {
+        string result = _processor.ConvertToHtmlFromString(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
     [InlineData("*Element", "*Element")]
+    [InlineData("Element *list", "Element *list")]
+    [InlineData("Element * list", "Element * list")]
     [InlineData("* Element", "<ul>\n    <li>Element</li>\n</ul>")]
     [InlineData("* Element 1\n* Element 2\n* Element 3", "<ul>\n    <li>Element 1</li>\n    <li>Element 2</li>\n    <li>Element 3</li>\n</ul>")]
     public void MarkedList_ShouldWork(string input, string expected)

@@ -9,21 +9,30 @@ public class MarkdownProcessor : IMarkdownProcessor
     private readonly IParser<Line> _lineParser;
     private readonly IRenderer _renderer;
     private readonly IFileParser _fileParser;
+    private readonly SingleTagFactory _tagFactory;
 
-    //TODO: Вынести в нужную сущность
-
-    private readonly Dictionary<string, TagElement> TagsDictionary = new()
+    private readonly Dictionary<string, TagElement> _doubleTagDictionary = new()
     {
             { "_", new ItalicTag()},
             { "__", new BoldTag() },
     };
 
+    private readonly Dictionary<string, TagElement> _singleTagDictionary = new()
+    {
+            { "#", new HeaderTag()},
+            { "*", new MarkedListTag() },
+            { "+", new MarkedListTag() },
+            { "-", new MarkedListTag() },
+
+    };
+
     public MarkdownProcessor()
     {
-        _tokenParser = new TokenParser(TagsDictionary);
-        _lineParser = new LineParser(_tokenParser);
+        _tagFactory = new SingleTagFactory();
+        _tokenParser = new TokenParser(_doubleTagDictionary);
+        _lineParser = new LineParser(_tokenParser, _tagFactory);
         _fileParser  = new MdFileParser();
-        _renderer = new HtmlRenderer(TagsDictionary);
+        _renderer = new HtmlRenderer(_doubleTagDictionary, _singleTagDictionary);
     }
 
     public string ConvertToHtmlFromString(string markdownText)

@@ -4,11 +4,13 @@ namespace MarkdownLibrary;
 
 public class HtmlRenderer : IRenderer
 {
-    private readonly Dictionary<string, TagElement> _tagDictionary;
+    private readonly Dictionary<string, TagElement> _doubleTagDictionary;
+    private readonly Dictionary<string, TagElement> _singleTagDictionary;
 
-    public HtmlRenderer(Dictionary<string, TagElement> tagDictionary)
+    public HtmlRenderer(Dictionary<string, TagElement> tagDictionary, Dictionary<string, TagElement> singleTagDictionary)
     {
-        _tagDictionary = tagDictionary;
+        _doubleTagDictionary = tagDictionary;
+        _singleTagDictionary = singleTagDictionary;
     }
 
 
@@ -100,7 +102,7 @@ public class HtmlRenderer : IRenderer
 
         foreach (var tagData in tagDataList.OrderByDescending(t => t.Index))
         {
-            var tagLength = tagData.Tag.MdTag.Length;
+            var tagLength = tagData.Tag.MdLength;
             var replacement = tagData.IsClosing ? tagData.Tag.CloseHtmlTag : tagData.Tag.OpenHtmlTag;
 
             result.Remove(tagData.Index, tagLength);
@@ -122,7 +124,7 @@ public class HtmlRenderer : IRenderer
             {
                 var escapedSymbol = text[i + 1].ToString();
 
-                if (_tagDictionary.ContainsKey(escapedSymbol) || escapedSymbol == "#" || escapedSymbol == "\\")
+                if (_doubleTagDictionary.ContainsKey(escapedSymbol) || _singleTagDictionary.ContainsKey(escapedSymbol) || escapedSymbol == "\\")
                 {
                     continue;
                 }

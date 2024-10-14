@@ -1,12 +1,15 @@
-﻿namespace MarkdownLibrary;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+
+namespace MarkdownLibrary;
 
 public class TokenParser : IParser<Token>
 {
-    private readonly Dictionary<string, TagElement> _tagDictionary;
+    private readonly Dictionary<string, TagElement> _doubleTagDictionary;
 
     public TokenParser(Dictionary<string, TagElement> tagDictionary)
     {
-        _tagDictionary = tagDictionary;
+        _doubleTagDictionary = tagDictionary;
     }
 
     public IEnumerable<Token> Parse(string content)
@@ -34,7 +37,6 @@ public class TokenParser : IParser<Token>
         RemoveUnclosedTags(tokens, tagStack);
         return tokens;
     }
-
 
     private List<TagData> ParseWordTags(string word, Stack<string> tagStack)
     {
@@ -67,6 +69,12 @@ public class TokenParser : IParser<Token>
 
                 if (tagStack.Contains(currentTag))
                 {
+                    if (tagStack.Peek() != currentTag)
+                    {
+                        tokenTags.Clear();
+                        break;
+                    }
+
                     if (NotHasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateClosingTag(currentTag, i));
@@ -95,7 +103,7 @@ public class TokenParser : IParser<Token>
 
     private bool IsTag(string symbol)
     {
-        return _tagDictionary.ContainsKey(symbol);
+        return _doubleTagDictionary.ContainsKey(symbol);
     }
 
     private bool ContainsDigitsInsideTag(string word, int tagPosition, string tag)
@@ -148,7 +156,7 @@ public class TokenParser : IParser<Token>
 
     private bool IsTagInsideWord(TagData tokenTag, string word)
     {
-        return tokenTag.Index != 0 && tokenTag.Index != word.Length - tokenTag.Tag.MdTag.Length;
+        return tokenTag.Index != 0 && tokenTag.Index != word.Length - tokenTag.Tag.MdLength;
     }
 
     private bool IsEscapeSequence(string symbol, ref bool isEscaped)
@@ -168,16 +176,15 @@ public class TokenParser : IParser<Token>
         {
             var unclosedTag = tagStack.Pop();
 
-            if (!_tagDictionary.TryGetValue(unclosedTag, out var tagToRemove))
-            {
-                continue;
-            }
+            var tagToRemove = _doubleTagDictionary[unclosedTag];
 
-            foreach (var token in tokens)
+            for (int i = tokens.Count - 1; i >= 0; i--)
             {
-                if (token.Tags.Any(t => t.Tag == tagToRemove && t.Tag.IsDoubleTag))
+                var tagToRemoveIndex = tokens[i].Tags.FindIndex(t => t.Tag == tagToRemove);
+                if (tagToRemoveIndex != -1)
                 {
-                    token.Tags.RemoveAll(t => t.Tag == tagToRemove && t.Tag.IsDoubleTag);
+                    tokens[i].Tags.RemoveAt(tagToRemoveIndex);
+                    break; 
                 }
             }
         }
@@ -186,11 +193,13 @@ public class TokenParser : IParser<Token>
 
     private TagData CreateOpeningTag(string tag, int index)
     {
-        return new TagData(_tagDictionary[tag], index);
+        return new TagData(_doubleTagDictionary[tag], index);
     }
 
     private TagData CreateClosingTag(string tag, int index)
     {
-        return new TagData(_tagDictionary[tag], index, isClosing: true);
+        return new TagData(_doubleTagDictionary[tag], index, isClosing: true);
     }
 }
+
+

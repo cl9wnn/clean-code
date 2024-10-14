@@ -13,10 +13,3 @@ public class Line
         IndentLevel = indentLevel;
     }
 }
-
-public enum LineType
-{
-    Header,
-    List,
-    Text
-}

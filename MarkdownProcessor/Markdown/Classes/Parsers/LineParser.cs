@@ -1,14 +1,13 @@
-﻿using System.Net.Mail;
-
-namespace MarkdownLibrary;
+﻿namespace MarkdownLibrary;
 
 public class LineParser : IParser<Line>
 {
     private readonly IParser<Token> _tokenParser;
-
-    public LineParser(IParser<Token> tokenParser)
+    private readonly SingleTagFactory _tagFactory;
+    public LineParser(IParser<Token> tokenParser, SingleTagFactory tagFactory)
     {
         _tokenParser = tokenParser;
+        _tagFactory = tagFactory;
     }
 
     public IEnumerable<Line> Parse(string markdownText)
@@ -19,10 +18,13 @@ public class LineParser : IParser<Line>
         foreach (var line in lines)
         {
             var indentLevel = GetIndentLevel(line);
-            var (content, lineType) = GetLineInfo(line);
+            var tag = _tagFactory.GetTag(line);
+
+            var content = tag != null ? TrimLine(line, tag) : line;
+
             var tokens = _tokenParser.Parse(content);
 
-            lineTokens.Add(new Line(tokens, lineType, indentLevel));
+            lineTokens.Add(new Line(tokens, tag, indentLevel));
         }
 
         return lineTokens;
@@ -36,55 +38,19 @@ public class LineParser : IParser<Line>
         return spaceCount / indentSize;
     }
 
-    //TODO: заменить символы на свойство из класса тега
-    private (string content, TagElement tag) GetLineInfo(string line)
+  
+    public string TrimLine(string line, TagElement tag)
     {
-        if (IsHeader(line))
-        {
-            var headerTag = new HeaderTag();
-            string content = line.TrimStart('#').Trim();
-            return (content, headerTag);
-        }
-        else if (IsMarkedList(line))
-        {
-            var listTag = new MarkedListTag();
-            string content = line.TrimStart().TrimStart('*', '-', '+').Trim();
-            return (content, listTag);
-        }
-        else
-        {
-            return (line.Trim(), null);
-        }
-    }
+        string trimmedLine = line.TrimStart();
 
-
-    //TODO: убрать # и взять из тега
-    private bool IsHeader(string line)
-    {
-        if (!string.IsNullOrEmpty(line) && line.TrimStart().StartsWith("#"))
+        foreach (var mdTag in tag.MdTags)
         {
-            int headerLevel = line.TakeWhile(c => c == '#').Count();
-
-            if (line.Length > headerLevel && line[headerLevel] == ' ')
+            if (trimmedLine.StartsWith(mdTag))
             {
-                return true;
+                return trimmedLine.TrimStart().Substring(mdTag.Length + 1);
             }
         }
-        return false;
-    }
 
-    //TODO: Сделать поддержку всех символов через класс тегов нормально
-    private bool IsMarkedList(string line)
-    {
-        if (!string.IsNullOrWhiteSpace(line))
-        {
-            string trimmedLine = line.TrimStart();
-
-            if (trimmedLine.Length > 1 && "*+-".Any(c => trimmedLine.StartsWith(c)))
-            {
-                return char.IsWhiteSpace(trimmedLine[1]);
-            }
-        }
-        return false;
+        return line;
     }
 }
