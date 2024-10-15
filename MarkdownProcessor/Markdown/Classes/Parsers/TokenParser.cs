@@ -1,15 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
-
-namespace MarkdownLibrary;
+﻿namespace MarkdownLibrary;
 
 public class TokenParser : IParser<Token>
 {
-    private readonly Dictionary<string, TagElement> _doubleTagDictionary;
+    private readonly ITagFactory _doubleTagFactory;
 
-    public TokenParser(Dictionary<string, TagElement> tagDictionary)
+    public TokenParser(ITagFactory doubleTagFactory)
     {
-        _doubleTagDictionary = tagDictionary;
+        _doubleTagFactory = doubleTagFactory;
     }
 
     public IEnumerable<Token> Parse(string content)
@@ -37,6 +34,7 @@ public class TokenParser : IParser<Token>
         RemoveUnclosedTags(tokens, tagStack);
         return tokens;
     }
+
 
     private List<TagData> ParseWordTags(string word, Stack<string> tagStack)
     {
@@ -103,7 +101,7 @@ public class TokenParser : IParser<Token>
 
     private bool IsTag(string symbol)
     {
-        return _doubleTagDictionary.ContainsKey(symbol);
+        return _doubleTagFactory.GetTag(symbol) != null;
     }
 
     private bool ContainsDigitsInsideTag(string word, int tagPosition, string tag)
@@ -176,7 +174,7 @@ public class TokenParser : IParser<Token>
         {
             var unclosedTag = tagStack.Pop();
 
-            var tagToRemove = _doubleTagDictionary[unclosedTag];
+            var tagToRemove = _doubleTagFactory.GetTag(unclosedTag);
 
             for (int i = tokens.Count - 1; i >= 0; i--)
             {
@@ -193,12 +191,14 @@ public class TokenParser : IParser<Token>
 
     private TagData CreateOpeningTag(string tag, int index)
     {
-        return new TagData(_doubleTagDictionary[tag], index);
+        var tagElement = _doubleTagFactory.GetTag(tag);
+        return new TagData(tagElement, index);
     }
 
     private TagData CreateClosingTag(string tag, int index)
     {
-        return new TagData(_doubleTagDictionary[tag], index, isClosing: true);
+        var tagElement = _doubleTagFactory.GetTag(tag);
+        return new TagData(tagElement, index, isClosing: true);
     }
 }
 

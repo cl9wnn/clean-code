@@ -9,30 +9,15 @@ public class MarkdownProcessor : IMarkdownProcessor
     private readonly IParser<Line> _lineParser;
     private readonly IRenderer _renderer;
     private readonly IFileParser _fileParser;
-    private readonly SingleTagFactory _tagFactory;
 
-    private readonly Dictionary<string, TagElement> _doubleTagDictionary = new()
-    {
-            { "_", new ItalicTag()},
-            { "__", new BoldTag() },
-    };
-
-    private readonly Dictionary<string, TagElement> _singleTagDictionary = new()
-    {
-            { "#", new HeaderTag()},
-            { "*", new MarkedListTag() },
-            { "+", new MarkedListTag() },
-            { "-", new MarkedListTag() },
-
-    };
+    public IEnumerable<string> tags = ["_", "__", "*", "#", "-", "+"];
 
     public MarkdownProcessor()
     {
-        _tagFactory = new SingleTagFactory();
-        _tokenParser = new TokenParser(_doubleTagDictionary);
-        _lineParser = new LineParser(_tokenParser, _tagFactory);
+        _tokenParser = new TokenParser(new DoubleTagFactory());
+        _lineParser = new LineParser(_tokenParser, new SingleTagFactory());
         _fileParser  = new MdFileParser();
-        _renderer = new HtmlRenderer(_doubleTagDictionary, _singleTagDictionary);
+        _renderer = new HtmlRenderer(tags, new LineRenderer(), new ListRenderer());
     }
 
     public string ConvertToHtmlFromString(string markdownText)

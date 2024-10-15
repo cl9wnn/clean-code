@@ -72,6 +72,8 @@ public class MdProcessorTests
 
     [Theory]
     [InlineData("__emphasis _text_ convert__", "<strong>emphasis <em>text</em> convert</strong>")]
+    [InlineData("__emphasis _text another text_ convert__", "<strong>emphasis <em>text another text</em> convert</strong>")]
+
     public void NestedEmphasisTag_ShouldConvert(string input, string expected)
     {
         string result = _processor.ConvertToHtmlFromString(input);
@@ -81,6 +83,8 @@ public class MdProcessorTests
 
     [Theory]
     [InlineData("_bold __text__ doesnt convert_", "<em>bold __text__ doesnt convert</em>")]
+    [InlineData("_bold __text another text__ doesnt convert_", "<em>bold __text another text__ doesnt convert</em>")]
+
     public void NestedStrongTag_ShouldNotConvert(string input, string expected)
     {
         string result = _processor.ConvertToHtmlFromString(input);

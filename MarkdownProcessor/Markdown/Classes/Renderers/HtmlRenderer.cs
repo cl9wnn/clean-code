@@ -1,119 +1,45 @@
-﻿using System.Security.Cryptography;
-using System.Text;
+﻿using System.Text;
 namespace MarkdownLibrary;
 
 public class HtmlRenderer : IRenderer
 {
-    private readonly Dictionary<string, TagElement> _doubleTagDictionary;
-    private readonly Dictionary<string, TagElement> _singleTagDictionary;
+    private readonly IEnumerable<string> _tags;
+    private readonly LineRenderer _lineRenderer;
+    private readonly ListRenderer _listRenderer;
 
-    public HtmlRenderer(Dictionary<string, TagElement> tagDictionary, Dictionary<string, TagElement> singleTagDictionary)
+    public HtmlRenderer(IEnumerable<string> tags, LineRenderer lineRenderer, ListRenderer listRenderer)
     {
-        _doubleTagDictionary = tagDictionary;
-        _singleTagDictionary = singleTagDictionary;
+        _tags = tags;
+        _lineRenderer = lineRenderer;
+        _listRenderer = listRenderer;
     }
 
-
-    //TODO: возможно сделать наследование от класса Line и упростить логику проверки
     public string Render(IEnumerable<Line> processedLines)
     {
         var renderedLines = new List<string>();
-        var isListOpen = false;
-        int currentLevel = 0;
 
         foreach (var line in processedLines)
         {
-            var indentLevel = line.IndentLevel;
-
-            if (line.Type is MarkedListTag && !isListOpen)
+            var listRendering = _listRenderer.RenderList(line);
+            if (!string.IsNullOrEmpty(listRendering))
             {
-                isListOpen = true;
-                renderedLines.Add("<ul>");
+                renderedLines.Add(listRendering);
             }
 
-            if (indentLevel > currentLevel)
-            {
-                renderedLines.Add(new string(' ',  indentLevel * 8) + "<ul>");
-                currentLevel = indentLevel;
-            }
-            else if (indentLevel < currentLevel)
-            {
-                renderedLines.Add(new string(' ',  currentLevel * 8) + "</ul>");
-                currentLevel = indentLevel;
-            }
-
-            if (line.Type is not MarkedListTag && isListOpen)
-            {
-                isListOpen = false;
-                renderedLines.Add("</ul>");
-            }
-
-            var renderedLine = RenderLine(line);
+            var renderedLine = _lineRenderer.RenderLine(line);
             renderedLines.Add(renderedLine);
         }
 
-        if (isListOpen)
+        var closingList = _listRenderer.CloseOpenList();
+
+        if (!string.IsNullOrEmpty(closingList))
         {
-            renderedLines.Add("</ul>");
+            renderedLines.Add(closingList);
         }
 
         return RemoveEscapedCharacters(string.Join("\n", renderedLines));
     }
 
-    private string RenderLine(Line line)
-    {
-        var renderedString = new StringBuilder();
-
-        foreach (var token in line.Tokens)
-        {
-            var word = token.Word;
-            var tagDataList = token.Tags;
-
-            if (tagDataList.Count > 0)
-            {
-                var renderedWord = ReplaceTags(word, tagDataList);
-                renderedString.Append(renderedWord);
-            }
-            else
-            {
-                renderedString.Append(word);
-            }
-
-            renderedString.Append(' ');
-        }
-
-        string content = renderedString.ToString().TrimEnd();
-
-        if (line.Type is HeaderTag headerTag)
-        {
-            return headerTag.RenderHeaderLine(content);
-        }
-        else if (line.Type is MarkedListTag listTag)
-        {
-            return new string(' ', 4 + line.IndentLevel * 8) + listTag.RenderMarkedListLine(content);
-        }
-
-        return content;
-    }
-
-    private string ReplaceTags(string word, List<TagData> tagDataList)
-    {
-        var result = new StringBuilder(word);
-
-        foreach (var tagData in tagDataList.OrderByDescending(t => t.Index))
-        {
-            var tagLength = tagData.Tag.MdLength;
-            var replacement = tagData.IsClosing ? tagData.Tag.CloseHtmlTag : tagData.Tag.OpenHtmlTag;
-
-            result.Remove(tagData.Index, tagLength);
-            result.Insert(tagData.Index, replacement);
-        }
-
-        return result.ToString();
-    }
-
-
-    //TODO: добавить все символы и сделать нормальную проверку
     private string RemoveEscapedCharacters(string text)
     {
         var result = new StringBuilder();
@@ -124,7 +50,7 @@ public class HtmlRenderer : IRenderer
             {
                 var escapedSymbol = text[i + 1].ToString();
 
-                if (_doubleTagDictionary.ContainsKey(escapedSymbol) || _singleTagDictionary.ContainsKey(escapedSymbol) || escapedSymbol == "\\")
+                if (_tags.Contains(escapedSymbol) || escapedSymbol == "\\")
                 {
                     continue;
                 }

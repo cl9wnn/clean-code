@@ -6,7 +6,7 @@ public class Program
 { 
     public static void Main(string[] args)
     {
-        string input = " * element";
+        string input = "__Bold #text__ and  _italic text_";
 
         var processor = new MarkdownProcessor();
 

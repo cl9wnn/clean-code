@@ -1,6 +1,6 @@
 ﻿namespace MarkdownLibrary;
 
-public class SingleTagFactory
+public class SingleTagFactory: ITagFactory
 {
     private readonly Dictionary<string, TagElement> _singleTagDictionary;
 
@@ -15,7 +15,7 @@ public class SingleTagFactory
         };
     }
 
-    public TagElement GetTag(string line)
+    public TagElement? GetTag(string line)
     {
         var trimmedLine = line.TrimStart();
 

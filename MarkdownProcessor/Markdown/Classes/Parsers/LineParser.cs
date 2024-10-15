@@ -3,8 +3,8 @@
 public class LineParser : IParser<Line>
 {
     private readonly IParser<Token> _tokenParser;
-    private readonly SingleTagFactory _tagFactory;
-    public LineParser(IParser<Token> tokenParser, SingleTagFactory tagFactory)
+    private readonly ITagFactory _tagFactory;
+    public LineParser(IParser<Token> tokenParser, ITagFactory tagFactory)
     {
         _tokenParser = tokenParser;
         _tagFactory = tagFactory;
@@ -24,7 +24,7 @@ public class LineParser : IParser<Line>
 
             var tokens = _tokenParser.Parse(content);
 
-            lineTokens.Add(new Line(tokens, tag, indentLevel));
+            lineTokens.Add(new Line(tokens, (ILineTag)tag, indentLevel));
         }
 
         return lineTokens;
