@@ -30,7 +30,7 @@ public class LineParser : IParser<Line>
         return lineTokens;
     }
 
-    public int GetIndentLevel(string input)
+    private int GetIndentLevel(string input)
     {
         int indentSize = 2;
         int spaceCount = input.TakeWhile(char.IsWhiteSpace).Count();
@@ -38,8 +38,8 @@ public class LineParser : IParser<Line>
         return spaceCount / indentSize;
     }
 
-  
-    public string TrimLine(string line, TagElement tag)
+
+    private string TrimLine(string line, TagElement tag)
     {
         string trimmedLine = line.TrimStart();
 

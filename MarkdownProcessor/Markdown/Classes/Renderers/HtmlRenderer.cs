@@ -3,11 +3,11 @@ namespace MarkdownLibrary;
 
 public class HtmlRenderer : IRenderer
 {
-    private readonly IEnumerable<string> _tags;
+    private readonly IEnumerable<TagElement> _tags;
     private readonly LineRenderer _lineRenderer;
     private readonly ListRenderer _listRenderer;
 
-    public HtmlRenderer(IEnumerable<string> tags, LineRenderer lineRenderer, ListRenderer listRenderer)
+    public HtmlRenderer(IEnumerable<TagElement> tags, LineRenderer lineRenderer, ListRenderer listRenderer)
     {
         _tags = tags;
         _lineRenderer = lineRenderer;
@@ -37,7 +37,9 @@ public class HtmlRenderer : IRenderer
             renderedLines.Add(closingList);
         }
 
-        return RemoveEscapedCharacters(string.Join("\n", renderedLines));
+        string result = RemoveEscapedCharacters(string.Join("\n", renderedLines));
+
+        return result;
     }
 
     private string RemoveEscapedCharacters(string text)
@@ -50,7 +52,7 @@ public class HtmlRenderer : IRenderer
             {
                 var escapedSymbol = text[i + 1].ToString();
 
-                if (_tags.Contains(escapedSymbol) || escapedSymbol == "\\")
+                if (IsMdTag(escapedSymbol) || escapedSymbol == "\\")
                 {
                     continue;
                 }
@@ -59,6 +61,11 @@ public class HtmlRenderer : IRenderer
         }
 
         return result.ToString();
+    }
+
+    private bool IsMdTag(string symbol)
+    {
+        return _tags.Any(tag => tag.MdTags.Any(md => md.Contains(symbol)));
     }
 }
 

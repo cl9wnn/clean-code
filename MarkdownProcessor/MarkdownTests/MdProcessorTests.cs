@@ -9,7 +9,19 @@ public class MdProcessorTests
 
     public MdProcessorTests()
     {
-        _processor = new MarkdownProcessor();
+        IEnumerable<TagElement> tags = [new HeaderTag(), new BoldTag(), new ItalicTag(), new MarkedListTag()];
+
+        var singleTagFactory = new SingleTagFactory(tags);
+        var doubleTagFactory = new DoubleTagFactory(tags);
+
+        var lineRenderer = new LineRenderer();
+        var listRenderer = new ListRenderer();
+
+        var tokenParser = new TokenParser(doubleTagFactory);
+        var lineParser = new LineParser(tokenParser, singleTagFactory);
+        var renderer = new HtmlRenderer(tags, lineRenderer, listRenderer);
+
+        _processor = new MarkdownProcessor(lineParser, renderer);
     }
 
 

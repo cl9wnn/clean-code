@@ -50,8 +50,10 @@ public class TokenParser : IParser<Token>
         {
             string symbol = word[i].ToString();
 
-            if (IsEscapeSequence(symbol, ref isEscaped))
+
+            if (symbol == "\\" && !isEscaped)
             {
+                isEscaped = true;
                 continue;
             }
 
@@ -73,7 +75,7 @@ public class TokenParser : IParser<Token>
                         break;
                     }
 
-                    if (NotHasSpaceBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
+                    if (HasSymbolBeforeClosingTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateClosingTag(currentTag, i));
                         tagStack.Pop();
@@ -82,7 +84,7 @@ public class TokenParser : IParser<Token>
                 else
                 {
 
-                    if (NotHasSpaceAfterOpenTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
+                    if (HasSymbolAfterOpenTag(word, currentTag, i) && !IsBoldTagNested(currentTag, tagStack))
                     {
                         tokenTags.Add(CreateOpeningTag(currentTag, i));
                         tagStack.Push(currentTag);
@@ -140,14 +142,12 @@ public class TokenParser : IParser<Token>
     {
         return word.All(c => IsTag(c.ToString()));
     }
-
-    //TODO: поменять названия
-    private bool NotHasSpaceAfterOpenTag(string word, string currentTag, int index)
+    private bool HasSymbolAfterOpenTag(string word, string currentTag, int index)
     {
         return index + currentTag.Length < word.Length && word[index + currentTag.Length] != ' ';
     }
 
-    private bool NotHasSpaceBeforeClosingTag(string word, string currentTag, int index)
+    private bool HasSymbolBeforeClosingTag(string word, string currentTag, int index)
     {
         return index >= currentTag.Length && word[index - currentTag.Length] != ' ';
     }
@@ -155,17 +155,6 @@ public class TokenParser : IParser<Token>
     private bool IsTagInsideWord(TagData tokenTag, string word)
     {
         return tokenTag.Index != 0 && tokenTag.Index != word.Length - tokenTag.Tag.MdLength;
-    }
-
-    private bool IsEscapeSequence(string symbol, ref bool isEscaped)
-    {
-        if (symbol == "\\" && !isEscaped)
-        {
-            isEscaped = true;
-            return true;
-        }
-
-        return false;
     }
 
     private void RemoveUnclosedTags(List<Token> tokens, Stack<string> tagStack)
@@ -182,12 +171,11 @@ public class TokenParser : IParser<Token>
                 if (tagToRemoveIndex != -1)
                 {
                     tokens[i].Tags.RemoveAt(tagToRemoveIndex);
-                    break; 
+                    break;
                 }
             }
         }
     }
-
 
     private TagData CreateOpeningTag(string tag, int index)
     {

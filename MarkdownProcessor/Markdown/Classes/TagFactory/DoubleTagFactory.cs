@@ -1,21 +1,23 @@
 ﻿namespace MarkdownLibrary;
 
-public class DoubleTagFactory: ITagFactory
+public class DoubleTagFactory : ITagFactory
 {
-    private readonly Dictionary<string, TagElement> _tagDictionary;
+    private readonly IEnumerable<TagElement> _tags;
 
-    public DoubleTagFactory()
+    public DoubleTagFactory(IEnumerable<TagElement> tags)
     {
-        _tagDictionary = new()
-    {
-            { "_", new ItalicTag()},
-            { "__", new BoldTag()},
-    };
-}
+        _tags = tags;
+    }
 
     public TagElement? GetTag(string symbol)
     {
-        return _tagDictionary.TryGetValue(symbol, out var tag) ? tag : null;
+        foreach (var tag in _tags)
+        {
+            if (tag.IsDoubleTag == true && tag.MdTags.Contains(symbol))
+            {
+                return tag;
+            }
+        }
+        return null;
     }
-
 }

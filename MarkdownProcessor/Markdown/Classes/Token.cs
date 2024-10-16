@@ -1,5 +1,4 @@
 ﻿namespace MarkdownLibrary;
-
 public class Token
 {
     public string Word { get; set; }

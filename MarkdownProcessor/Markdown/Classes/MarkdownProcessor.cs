@@ -1,23 +1,23 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-
-namespace MarkdownLibrary;
+﻿namespace MarkdownLibrary;
 
 public class MarkdownProcessor : IMarkdownProcessor
 {
-    private readonly IParser<Token> _tokenParser;
     private readonly IParser<Line> _lineParser;
     private readonly IRenderer _renderer;
-    private readonly IFileParser _fileParser;
+    private readonly IFileParser? _fileParser;
 
-    public IEnumerable<string> tags = ["_", "__", "*", "#", "-", "+"];
 
-    public MarkdownProcessor()
+    public MarkdownProcessor(IParser<Line> parser, IRenderer renderer)
     {
-        _tokenParser = new TokenParser(new DoubleTagFactory());
-        _lineParser = new LineParser(_tokenParser, new SingleTagFactory());
-        _fileParser  = new MdFileParser();
-        _renderer = new HtmlRenderer(tags, new LineRenderer(), new ListRenderer());
+        _lineParser = parser;
+        _renderer = renderer;
+    }
+    public MarkdownProcessor(IParser<Line> parser, IRenderer renderer, IFileParser fileParser)
+    {
+        _lineParser = parser;
+        _renderer = renderer;
+        _fileParser = fileParser;
+
     }
 
     public string ConvertToHtmlFromString(string markdownText)
@@ -27,10 +27,11 @@ public class MarkdownProcessor : IMarkdownProcessor
         return _renderer.Render(lines);
     }
 
-    public string ConvertToHtmlFromFile(string filePath)
+    public string ConvertToHtmlFromFile(string filePath, IFileParser fileParser)
     {
-        var parsedFile = _fileParser.Parse(filePath);
-        var lines = _lineParser.Parse(parsedFile);
+        var text = fileParser.Parse(filePath);
+
+        var lines = _lineParser.Parse(text);
 
         return _renderer.Render(lines);
     }

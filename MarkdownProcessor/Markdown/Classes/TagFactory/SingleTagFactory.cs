@@ -1,18 +1,12 @@
 ﻿namespace MarkdownLibrary;
 
-public class SingleTagFactory: ITagFactory
+public class SingleTagFactory : ITagFactory
 {
-    private readonly Dictionary<string, TagElement> _singleTagDictionary;
+    private readonly IEnumerable<TagElement> _tags;
 
-    public SingleTagFactory()
+    public SingleTagFactory(IEnumerable<TagElement> tags)
     {
-        _singleTagDictionary = new Dictionary<string, TagElement>
-        {
-             {"#", new HeaderTag()},
-            { "*", new MarkedListTag() },
-            { "+", new MarkedListTag() },
-            { "-", new MarkedListTag() },
-        };
+        _tags = tags;
     }
 
     public TagElement? GetTag(string line)
@@ -26,10 +20,14 @@ public class SingleTagFactory: ITagFactory
 
         var symbol = trimmedLine[0].ToString();
 
-        if (_singleTagDictionary.TryGetValue(symbol, out var tag) && char.IsWhiteSpace(trimmedLine[1]))
+        foreach (var tag in _tags)
         {
-            return tag;
+            if (tag.IsDoubleTag == false && tag.MdTags.Contains(symbol) && char.IsWhiteSpace(trimmedLine[1]))
+            {
+                return tag;
+            }
         }
+
         return null;
     }
 }
