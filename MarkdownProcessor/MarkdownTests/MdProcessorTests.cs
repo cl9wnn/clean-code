@@ -25,8 +25,6 @@ public class MdProcessorTests
     }
 
 
-    //TODO: Make tests for time complexity(O(n))
-
     [Theory]
     [InlineData("__text__", "<strong>text</strong>")]
     [InlineData("__bold text__", "<strong>bold text</strong>")]
@@ -213,9 +211,9 @@ public class MdProcessorTests
     }
 
     [Theory]
-    [InlineData("# __Заголовок__", "<h1><strong>Заголовок</strong></h1>")]
-    [InlineData("# _Заголовок_", "<h1><em>Заголовок</em></h1>")]
-    [InlineData("# Заголовок __с _разными_ символами__", "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
+    [InlineData("# __Header__", "<h1><strong>Header</strong></h1>")]
+    [InlineData("# _Header_", "<h1><em>Header</em></h1>")]
+    [InlineData("# Header __with _different_ symbols__", "<h1>Header <strong>with <em>different</em> symbols</strong></h1>")]
     public void HeaderWithAnotherTags_ShouldWork(string input, string expected)
     {
         string result = _processor.ConvertToHtmlFromString(input);
@@ -284,7 +282,7 @@ public class MdProcessorTests
     [Theory]
     [InlineData("+ Item A\n+ Item B\n  + Sub-item 1\n  + Sub-item 2\n+ Item C", "<ul>\n    <li>Item A</li>\n    <li>Item B</li>\n        <ul>\n            <li>Sub-item 1</li>\n            <li>Sub-item 2</li>\n        </ul>\n    <li>Item C</li>\n</ul>")]
     [InlineData("+ Item 1\n* Item 2\n  * Sub-item 1\n+ Item 3\n  * Sub-item 2\n", "<ul>\n    <li>Item 1</li>\n    <li>Item 2</li>\n        <ul>\n            <li>Sub-item 1</li>\n        </ul>\n    <li>Item 3</li>\n        <ul>\n            <li>Sub-item 2</li>\n        </ul>\n</ul>\n")]
-    [InlineData("- Пункт 1\r\n  - Подпункт 1.1\r\n    - Подпункт 1.1.1\r\n  - Подпункт 1.2\r\n- Пункт 2", "<ul>\n    <li>Пункт 1</li>\n        <ul>\n            <li>Подпункт 1.1</li>\n                <ul>\n                    <li>Подпункт 1.1.1</li>\n                </ul>\n            <li>Подпункт 1.2</li>\n        </ul>\n    <li>Пункт 2</li>\n</ul>")]
+    [InlineData("- Item 1\r\n  - Sub-item 1.1\r\n    - Sub-item 1.1.1\r\n  - Sub-item 1.2\r\n- Item 2", "<ul>\n    <li>Item 1</li>\n        <ul>\n            <li>Sub-item 1.1</li>\n                <ul>\n                    <li>Sub-item 1.1.1</li>\n                </ul>\n            <li>Sub-item 1.2</li>\n        </ul>\n    <li>Item 2</li>\n</ul>")]
 
     public void MarkedList_ShouldSupportNestedLists(string input, string expected)
     {
