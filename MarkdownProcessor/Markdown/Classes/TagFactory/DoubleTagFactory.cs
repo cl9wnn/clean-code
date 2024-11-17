@@ -13,7 +13,7 @@ public class DoubleTagFactory : ITagFactory
     {
         foreach (var tag in _tags)
         {
-            if (tag.IsDoubleTag == true && tag.MdTags.Contains(symbol))
+            if (tag is not ILineTag && tag.MdTags.Contains(symbol))
             {
                 return tag;
             }

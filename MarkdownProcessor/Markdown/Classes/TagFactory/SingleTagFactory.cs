@@ -22,7 +22,7 @@ public class SingleTagFactory : ITagFactory
 
         foreach (var tag in _tags)
         {
-            if (tag.IsDoubleTag == false && tag.MdTags.Contains(symbol) && char.IsWhiteSpace(trimmedLine[1]))
+            if (tag is ILineTag && tag.MdTags.Contains(symbol) && char.IsWhiteSpace(trimmedLine[1]))
             {
                 return tag;
             }
