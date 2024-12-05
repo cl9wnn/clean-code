@@ -4,8 +4,8 @@ public class Program
 { 
     public static void Main(string[] args)
     {
-        string input = "example_ text_";
-
+        string input = "+ Item 1\n* Item 2\n  * Sub-item 1\n+ Item 3";
+     //   Console.WriteLine("<ul>\n    <li>Item 1</li>\n    <li>Item 2</li>\n        <ul>\n            <li>Sub-item 1</li>\n        </ul>\n    <li>Item 3</li>\n        <ul>\n            <li>Sub-item 2</li>\n        </ul>\n</ul>");
         IEnumerable<TagElement> tags = [new HeaderTag(), new BoldTag(), new ItalicTag(), new MarkedListTag()];
 
         var singleTagFactory = new SingleTagFactory(tags);

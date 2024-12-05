@@ -20,7 +20,7 @@ public class LineParser : IParser<Line>
             var indentLevel = GetIndentLevel(line);
             var tag = _tagFactory.GetTag(line);
 
-            var content = tag != null ? TrimLine(line, tag) : line;
+            var content = tag is ParagraphTag ? line : TrimLine(line, tag);
 
             var tokens = _tokenParser.Parse(content);
 
@@ -42,6 +42,9 @@ public class LineParser : IParser<Line>
     private string TrimLine(string line, TagElement tag)
     {
         string trimmedLine = line.TrimStart();
+        
+        if (trimmedLine.Length == 0)
+            return line;
 
         foreach (var mdTag in tag.MdTags)
         {

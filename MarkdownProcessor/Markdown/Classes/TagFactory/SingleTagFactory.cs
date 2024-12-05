@@ -14,10 +14,8 @@ public class SingleTagFactory : ITagFactory
         var trimmedLine = line.TrimStart();
 
         if (trimmedLine.Length == 0)
-        {
-            return null;
-        }
-
+            return new ParagraphTag();
+        
         var symbol = trimmedLine[0].ToString();
 
         foreach (var tag in _tags)
@@ -28,6 +26,6 @@ public class SingleTagFactory : ITagFactory
             }
         }
 
-        return null;
+        return new ParagraphTag();
     }
 }

@@ -11,6 +11,5 @@
         {
             return $"{OpenHtmlTag}{line}{CloseHtmlTag}";
         }
-
     }
 }
