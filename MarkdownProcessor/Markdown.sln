@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{F47BE347-0B2C-4AF7-A944-2793B0CC1B36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{BB900802-0D66-4084-A3E8-7E85835CAB96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F47BE347-0B2C-4AF7-A944-2793B0CC1B36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F47BE347-0B2C-4AF7-A944-2793B0CC1B36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F47BE347-0B2C-4AF7-A944-2793B0CC1B36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB900802-0D66-4084-A3E8-7E85835CAB96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB900802-0D66-4084-A3E8-7E85835CAB96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB900802-0D66-4084-A3E8-7E85835CAB96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB900802-0D66-4084-A3E8-7E85835CAB96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
