@@ -1,6 +1,6 @@
 namespace Persistence.Entities;
 
-public class Account
+public class AccountEntity
 {
     public Guid AccountId { get; set; }
     public string? Email { get; set; }

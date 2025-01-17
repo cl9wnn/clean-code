@@ -21,6 +21,7 @@ public static class AuthExtensions
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings!.SecretKey!))
                 };
 
@@ -28,7 +29,11 @@ public static class AuthExtensions
                 {
                     OnMessageReceived = context =>
                     {
-                        context.Token = context.Request.Cookies["myToken"];
+                        var authorizationHeader = context.Request.Headers["Authorization"].ToString();
+                        if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.Token = authorizationHeader.Substring("Bearer ".Length).Trim();
+                        }
                         return Task.CompletedTask;
                     }
                 };

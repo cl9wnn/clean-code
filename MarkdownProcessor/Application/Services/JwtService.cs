@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Core.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.Entities;
@@ -9,13 +10,13 @@ namespace BusinessLogic.Services;
 
 public class JwtService(IOptions<AuthSettings> options)
 {
-    public string GenerateJwtToken(Account account)
+    public string GenerateJwtToken(Account accountEntity)
     {
         var claims = new List<Claim>
         {
-            new Claim("email", account.Email!),
-            new Claim("firstname", account.FirstName!),
-            new Claim("id", account.AccountId.ToString())
+            new Claim("email", accountEntity.Email!),
+            new Claim("firstname", accountEntity.FirstName!),
+            new Claim("id", accountEntity.AccountId.ToString())
         };
         
         var jwtToken = new JwtSecurityToken(

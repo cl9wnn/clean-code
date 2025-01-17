@@ -4,9 +4,9 @@ using Persistence.Entities;
 
 namespace Persistence.Configurations;
 
-public class UserConfiguration: IEntityTypeConfiguration<Account>
+public class UserConfiguration: IEntityTypeConfiguration<AccountEntity>
 {
-    public void Configure(EntityTypeBuilder<Account> builder)
+    public void Configure(EntityTypeBuilder<AccountEntity> builder)
     {
         builder.HasKey(a => a.AccountId);
 

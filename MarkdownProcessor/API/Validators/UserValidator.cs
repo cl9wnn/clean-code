@@ -20,6 +20,5 @@ public class UserValidator: AbstractValidator<RegisterUserRequest>
             .NotEmpty()
             .Matches("^[a-zA-Z0-9_\\s]{5,20}$")
             .WithMessage("First name must beet 5 and 20 characters.");
-
     }
 }

@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/MainPage/style.css">
+    <link rel="stylesheet" href="/Authorization/style.css">
     <title>Title</title>
 </head>
 
 <body>
 <header>
-    <a class="header-link"  href="/auth/register">
-        <img src="https://esales.poscoassan.com.tr/public/assets/images/users/avatar-9.png" id="lk-icon" alt="lk-icon">
-        Личный кабинет
-    </a>
+   <button class="header-buttons" id="registerBtn">Register</button>
+    <button class="header-buttons" id="loginBtn">Login</button>
 </header>
 
 <div class="main-container">
@@ -27,8 +26,9 @@
                 <textarea class="markdown-textarea" id="markdown-result" rows="10" cols="50" readonly></textarea>
             </form>
         </div>
-        <button id="send-bttn" type="submit"> отправить</button>
+        <button id="sendBtn" type="submit"> отправить</button>
     </div>
 </div>
+<script type="module" src="/MainPage/script.js"></script>
 </body>
 </html>

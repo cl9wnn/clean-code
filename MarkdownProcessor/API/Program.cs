@@ -1,5 +1,6 @@
 using BusinessLogic;
 using BusinessLogic.Services;
+using Core.interfaces;
 using Persistence;
 using Persistence.Repositories;
 
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<AccountRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<JwtService>();
 
 builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
@@ -20,11 +21,5 @@ app.UseStaticFiles();
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapGet("/", async context =>
-{
-    context.Response.ContentType = "text/html";
-    await context.Response.SendFileAsync("wwwroot/MainPage/index.html");
-});
 
 app.Run();

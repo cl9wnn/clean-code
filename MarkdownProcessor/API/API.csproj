@@ -19,7 +19,18 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+      <ProjectReference Include="..\Application\Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\Auth\script.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\Auth\style.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\LoginPage\index.html" />
+      <_ContentIncludedByDefault Remove="wwwroot\LoginPage\script.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\LoginPage\style.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\RegisterPage\index.html" />
+      <_ContentIncludedByDefault Remove="wwwroot\RegisterPage\script.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\RegisterPage\style.css" />
     </ItemGroup>
 
 </Project>

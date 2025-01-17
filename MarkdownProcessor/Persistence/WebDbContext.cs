@@ -6,7 +6,7 @@ namespace Persistence;
 
 public class WebDbContext(DbContextOptions<WebDbContext> options): DbContext(options)
 { 
-    public DbSet<Account> Accounts { get; set; }
+    public DbSet<AccountEntity> Accounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
